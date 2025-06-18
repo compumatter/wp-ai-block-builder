@@ -1,0 +1,89 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "cm/cm-hello-again",
+  "title": "CM Hello Again",
+  "category": "cm-blocks",
+  "icon": "format-chat",
+  "description": "A simple block that displays Hello Jay in an alert box following the SSOT framework",
+  "keywords": [
+    "hello",
+    "jay",
+    "alert",
+    "cm"
+  ],
+  "example": {
+    "attributes": {
+      "isExample": true
+    }
+  },
+  "supports": {
+    "html": false,
+    "align": true
+  },
+  "attributes": {
+    "isExample": {
+      "type": "boolean",
+      "default": false
+    },
+    "message": {
+      "type": "string",
+      "default": "Hello Jay"
+    },
+    "customBackgroundColor": {
+      "type": "string"
+    },
+    "customTextColor": {
+      "type": "string"
+    },
+    "customBorder": {
+      "type": "object",
+      "default": {
+        "top": {
+          "width": "0px",
+          "style": "solid",
+          "color": "#000000"
+        },
+        "right": {
+          "width": "0px",
+          "style": "solid",
+          "color": "#000000"
+        },
+        "bottom": {
+          "width": "0px",
+          "style": "solid",
+          "color": "#000000"
+        },
+        "left": {
+          "width": "0px",
+          "style": "solid",
+          "color": "#000000"
+        }
+      }
+    },
+    "customPadding": {
+      "type": "object",
+      "default": {
+        "top": "0px",
+        "right": "0px",
+        "bottom": "0px",
+        "left": "0px"
+      }
+    }
+  },
+  "textdomain": "cm_hello_again",
+  "style": [],
+  "script": [],
+  "editorStyle": [
+    "cm-hello-again-centralized-css",
+    "file:./editor-styles.css"
+  ],
+  "viewScript": [
+    "jquery",
+    "cm-hello-again-centralized-js"
+  ],
+  "viewStyle": [
+    "cm-hello-again-centralized-css"
+  ],
+  "render": "file:./render.php"
+}
