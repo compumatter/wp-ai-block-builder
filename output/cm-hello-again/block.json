@@ -1,0 +1,27 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "cm/hello-jay",
+    "version": "0.1.0",
+    "title": "CM Hello Jay",
+    "category": "cm-blocks",
+    "icon": "admin-comments",
+    "description": "Displays Hello Jay in an alert box",
+    "example": {
+        "attributes": {
+            "isExample": true
+        }
+    },
+    "supports": {
+        "html": false,
+        "align": true,
+        "anchor": true,
+        "customClassName": true
+    },
+    "textdomain": "cm-hello-jay",
+    "editorScript": "file:./index.js",
+    "editorStyle": "file:./index.css",
+    "style": "cm-hello-jay-centralized-css",
+    "viewScript": "cm-hello-jay-centralized-js",
+    "render": "file:./render.php"
+}

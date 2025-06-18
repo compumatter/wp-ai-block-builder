@@ -1,0 +1,83 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "cm/hello-world",
+    "title": "CM Hello World",
+    "category": "cm-blocks",
+    "icon": "format-chat",
+    "description": "A simple Hello World block that demonstrates the SSOT framework with preview functionality and custom style controls",
+    "keywords": ["hello", "world", "demo", "cm"],
+    "example": {
+        "attributes": {
+            "isExample": true
+        }
+    },
+    "supports": {
+        "html": false,
+        "align": true
+    },
+    "attributes": {
+        "isExample": {
+            "type": "boolean",
+            "default": false
+        },
+        "message": {
+            "type": "string"
+        },
+        "customBackgroundColor": {
+            "type": "string"
+        },
+        "customTextColor": {
+            "type": "string"
+        },
+        "customBorder": {
+            "type": "object",
+            "default": {
+                "top": {
+                    "width": "0px",
+                    "style": "solid",
+                    "color": "#000000"
+                },
+                "right": {
+                    "width": "0px",
+                    "style": "solid",
+                    "color": "#000000"
+                },
+                "bottom": {
+                    "width": "0px",
+                    "style": "solid",
+                    "color": "#000000"
+                },
+                "left": {
+                    "width": "0px",
+                    "style": "solid",
+                    "color": "#000000"
+                }
+            }
+        },
+        "customPadding": {
+            "type": "object",
+            "default": {
+                "top": "0px",
+                "right": "0px",
+                "bottom": "0px",
+                "left": "0px"
+            }
+        }
+    },
+    "textdomain": "cm_hello_world",
+    "style": [],
+    "script": [],
+    "editorStyle": [
+        "cm-hello-world-centralized-css",
+        "file:./editor-styles.css"
+    ],
+    "viewScript": [
+        "jquery",
+        "cm-hello-world-centralized-js"
+    ],
+    "viewStyle": [
+        "cm-hello-world-centralized-css"
+    ],
+    "render": "file:./render.php"
+}
