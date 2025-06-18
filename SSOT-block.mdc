@@ -1,1 +1,244 @@
-/SM_DATA/sm_hosting/word4ya_net/public_html/wp-content/themes/SSOT-block.mdc
+---
+description: "Complete WordPress Block Development Framework using Single Source of Truth Architecture"
+globs: 
+alwaysApply: false
+---
+== WordPress Block Single Source of Truth Framework Template ==
+
+==== 🎯 Comprehensive Prompt Framework for LLM Block Development ====
+
+This template provides a complete framework for creating WordPress FSE custom blocks that implement '''Single Source of Truth (SSOT) architecture'''. Use this framework verbatim for every new custom block. Replace [BLOCK_SLUG] / [Block Title] placeholders as needed.
+
+=== All Block Underpinnings ===
+All blocks should be started by copying the directory /themes/word4ya/cm-blocks/cm-hello-world recursively to the new block directory name ie; cm-mynew-block 
+
+That will ensure it has the base required functionality baked into the cake such as 
+
+* Preview image via <code>isExample</code>
+* SSOT config structure
+* Environment-aware JS
+* Centralized CSS/styling
+
+=== Use Cases ===
+
+==== New Block Construction ====
+This will be referred to as need within this document as NBC
+
+We have a new idea and will be building a new block from scratch.  It will be created based on the code found in cm-hello-world and built upon as requested but always keeping to the precepts found further into this document.
+
+==== Conversion Block Construction ====
+This will be referred to as need within this document as CBC
+
+We have a previously created FSE block but need to convert it to one based on the code found in cm-hello-world.  After cm-hello-world is copied to the new block we must be careful to identify both front end and back end code from all original php, json, css and js and merge those styles, classes, functions and functionality in such a way that the behavior on both the FSE and Front End Website will function the same as the original block.
+
+Any improved or added functionality requested must be always keep to the precepts found further into this document.
+
+You should analyze ALL files in there to understand the complete functionality as it will all be carried over to the new block.
+
+===== CBC Conversion Checklist (MANDATORY) =====
+
+==== Conversion Request: ====
+
+* FIRST: Complete detailed analysis of ALL original files
+* SECOND: Create feature inventory list
+* THIRD: Begin conversion ensuring 100% parity
+* FOURTH: Validate nothing was missed
+* CRITICAL: This is CBC (Conversion Block Construction). Every single feature, attribute, method, and capability must be preserved. No exceptions.
+
+==== Before proceeding with conversion, LLM MUST complete this checklist: ====
+
+* Read EVERY line of original block.json - list all attributes found
+* Read EVERY line of original config.php - list all methods/properties
+* Read EVERY line of original editor.js - list all controls/features
+* Read EVERY line of original render.php - list all rendered elements
+* Read EVERY line of original centralized.js - list all functionality
+* Read EVERY line of original centralized.css - list all styles
+* Create comprehensive feature inventory before starting conversion
+* Verify 100% attribute parity in new block.json
+* Verify 100% feature parity in new implementation
+* Cross-reference: Does new block do EVERYTHING the original did?
+
+==== After conversion, LLM must provide: ====
+Attribute Parity Table
+
+Feature Parity Checklist
+
+Explicit Confirmation
+
+* I have verified 100% feature parity between original and converted block.
+
+==== Existing Block Construction ====
+This will be referred to as need within this document as EBC
+
+This is a block that was either a NBC or CBC at some point but has been tested and is working.  We are now improving or refining the existing block.
+
+Any improved or added functionality requested must be always keep to the precepts found further into this document.
+
+==== All Block Construction ====
+
+* Since cm-hello-world has naming conventions that relate only to 'cm-hello-world' it is important to rename them to the new block where applicable eg;
+** "hello", "world", hello-world, cm-hello-world, Hello World, cm/hello-world, hello-world 
+
+So the Convention / Rule should be for example:
+Folder prefix / All block folders start with cm-
+Block name / "name" must always follow format: "cm/plugin-name-block-slug", fully lowercase.
+Title prefix / "title": "CM Plugin Name"
+Keywords / Always include "cm" in keywords
+Inserter label / CM $plugins_name
+
+
+
+* In every use case, any style, behavior or functionality added to a block must incorporate the single source of truth concept as discussed in this document and as otherwise makes sense to use code once for all purposes.
+
+=== Purpose & Architecture Philosophy ===
+Create blocks with one—and only one—canonical source for config, styling, behavior, and data.
+
+* Eliminates drift between editor/frontend
+* Centralizes config for dev speed
+* Ensures consistent behavior
+* Supports native WP features
+* Enables universal JS for all WP environments
+
+=== New Block Creation Workflow ===
+* Create the block directory by its requested name in the base of the cm-blocks/ directory
+* Copy cm-hello-world recursively into the new block directory
+* If a CBC check all json,js,php andcss files from the original against the new one and augment the new one with all original code that does not directly contradict our single source of truth philosophy
+* If a NBC integrate any requested functionality into the new block code while following this documents single source of truth philosophy
+
+=== Golden Rules ===
+Most of these rules should be visible in cm-hello-world.  However this is an ongoing reminder in case new code is added to ensure it is added correctly.
+* Rule 1: `config.php` stores ALL defaults, CSS, asset handles, paths, sanitizers, etc.
+** Why: Zero duplication  
+** How: Static class methods
+
+* Rule 2: `block.json` only defines metadata and schema—not defaults
+** Why: WP requires early schema, but defaults belong in PHP
+
+* Rule 3: Pass config from PHP to JS via `wp_localize_script`
+** Why: Environment sync 
+** How: Shared config object for editor and frontend
+
+* Rule 4: Editor JS must consume localized config
+** Why: Avoids duplication/drift
+** How: Use `window.configObject`
+
+* Rule 5: Preserve `className` through sanitization/rendering
+** Why: Consistent styles
+** How: Use enhanced wrappers
+
+* Rule 6: React hooks must execute in stable order
+** Why: Prevents warnings
+** How: Collect hooks before branching
+
+* Rule 7: Universal JS for frontend, FSE, and editor
+** Why: Single codebase
+** How: Detect environment in JS
+
+* Rule 8: Use `ServerSideRender` when needed
+** Why: Consistent markup
+** How: No duplicate HTML
+
+* Rule 9: Config failures should log—not silently fail
+** Why: Debuggability
+** How: Throw errors
+
+* Rule 10: Use `wp_add_inline_style` for CSS vars
+** Why: Runtime dynamic styling
+** How: Inject global CSS properties
+
+* Rule 11: Load assets conditionally
+** Why: Performance
+** How: Use enqueue logic with detection
+
+* Rule 12: Support preview images
+** Why: Better UX in inserter
+** How: Use `isExample` and `preview.png`
+
+* Rule 13: Wrap all `editor.js` files in IIFE
+** Why: Prevent scope collisions
+** How: Use `(function() { ... })()` with `'use strict'`
+
+=== File Structure ===
+As shown in cm-hello-world<pre>
+[block-dir]/
+├── block.json
+├── config.php
+├── registering.php
+├── render.php
+├── centralized.css
+├── centralized.js
+├── editor.js
+├── editor-styles.css
+├── preview.png
+├── progress-report.mdc (optional)
+└── README.md (optional)
+</pre>
+
+'''Asset handles:'''
+* `cm-[BLOCK_SLUG]-centralized-css`
+* `cm-[BLOCK_SLUG]-centralized-js`
+* `cm-[BLOCK_SLUG]-editor-js`
+
+=== config.php Architecture ===
+The core config.php in cm-hello-world will serve as the beginning of all blocks including NBC and CBC.
+
+If this is a CMC block it is IMPERITIVE that you carefully review the original config.php file and incorporate any of its functions, variables, classes, arrays and anything else of obvious relevance into the config.php template which was copied from cm-hello-world unless it directly contradicts our single source of truth philosophy..  
+
+=== registering.php Pattern ===
+The core registering.php in cm-hello-world will serve as the beginning of all blocks including NBC and CBC.
+
+If this is a CMC block it is IMPERITIVE that you carefully review the original registering.php file and incorporate any of its functions, variables, classes, arrays and anything else of obvious relevance into the registering.php template which was copied from cm-hello-world unless it directly contradicts our single source of truth philosophy..  
+
+A require_once must be created for that registering.php within themes/word4ya/functions.php where there are already many other require_once calls to other registering.php files.  
+
+For instance:
+
+* require_once get_template_directory() . '/cm-blocks/cm-hello-world/registering.php';
+
+=== block.json Template ===
+The core block.json in cm-hello-world will serve as the beginning of all blocks including NBC and CBC.
+
+If this is a CMC block it is IMPERITIVE that you carefully review the original block.json file and incorporate any of its functions, variables, classes, arrays and anything else of obvious relevance into the block.json template which was copied from cm-hello-world unless it directly contradicts our single source of truth philosophy..  
+
+=== editor.js Framework ===
+The core editor.js in cm-hello-world will serve as the beginning of all blocks including NBC and CBC.  
+
+If this is a CMC block it is IMPERITIVE that you carefully review the original editor.js file and incorporate any of its functions, variables, classes, arrays and anything else of obvious relevance into the editor.js template which was copied from cm-hello-world unless it directly contradicts our single source of truth philosophy..  
+
+=== centralized.js Pattern ===
+The core centralized.js in cm-hello-world will serve as the beginning of all blocks including NBC and CBC. 
+
+If this is a CMC block it is IMPERITIVE that you carefully review the original centralized.js file and incorporate any of its functions, variables, classes, arrays and anything else of obvious relevance into the centralized.js template which was copied from cm-hello-world unless it directly contradicts our single source of truth philosophy.  
+
+=== render.php Template ===
+The core render.php in cm-hello-world will serve as the beginning of all blocks including NBC and CBC.
+
+If this is a CMC block it is IMPERITIVE that you carefully review the original render.php file and incorporate any of its functions, variables, classes, arrays and anything else of obvious relevance into the render.php template which was copied from cm-hello-world unless it directly contradicts our single source of truth philosophy.  
+
+=== Preview Image Support ===
+All custom blocks have the ability to include a preview image to give users some idea of what this block will look like in advance.
+
+This requires a file called preview.png place in the base directory of the block.  This will be copied from cm-hello-world and incorporated via its block.json, editor.js and config.php files.  No further efforts need to be made as the original cm-hello-world has it all setup correctly. 
+
+== Validation Checklist ==
+* Config only in config.php
+* JS config must exist as window.cm[BlockName]Config
+* No duplicate defaults in JS or block.json
+* editor.js is IIFE wrapped
+* Works in frontend, FSE, and editor
+* Asset handles use consistent naming
+* No const redeclarations
+* Proper sanitization and escaping
+* filemtime() used for cache busting
+* Configuration fails gracefully with clear errors
+
+== Benefits Summary ==
+
+* 🛡️ No config drift  
+* 📐 Visual parity  
+* 🏎️ Faster dev  
+* 🪤 Fewer bugs  
+* 🌍 WP-native standards  
+* 🔍 Debuggable  
+* ⚡ Universal JS  
+* 🎯 Config-driven
