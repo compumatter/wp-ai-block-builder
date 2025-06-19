@@ -1,0 +1,117 @@
+# JSON Response Format - Technical Documentation
+
+## Why This JSON Structure Is Required
+
+### The Problem
+When an AI generates WordPress block code, it needs to return multiple files with different operations (modify existing template files vs create new files). Without a structured format, we would have:
+
+- **No way to programmatically parse** the AI's response
+- **No way to determine** which files need modification vs creation
+- **No way to extract** clean file content from mixed AI response text
+- **Manual intervention required** to process AI output into actual files
+
+### The Solution
+A standardized JSON response format allows our Node.js application to:
+
+1. **Automatically parse** AI responses without human intervention
+2. **Programmatically determine** file operations (modify/create)
+3. **Extract clean file content** ready for direct file system operations
+4. **Maintain file integrity** without formatting corruption
+5. **Enable automation** of the entire block generation pipeline
+
+---
+
+## What The Recipient Does With This JSON
+
+### File Processing Pipeline
+When our Node.js application receives this JSON structure, it:
+
+#### 1. **JSON Parsing & Validation**
+```javascript
+const response = JSON.parse(aiResponse);
+// Validates structure and required fields
+```
+
+#### 2. **Template Directory Copy**
+```javascript
+// Copies hello-world template to new block directory
+copyTemplate('./templates/hello-world', `./output/${response.blockName}`);
+```
+
+#### 3. **File Operations Loop**
+For each file in the `files` object:
+
+**If action = "modify":**
+- Overwrites the template file with new content
+- Preserves file permissions and structure
+
+**If action = "create":**
+- Creates entirely new file with specified content
+- Sets appropriate permissions
+
+#### 4. **Nomenclature Processing**
+```javascript
+// Updates all block naming throughout files
+updateNomenclature(blockPath, oldSlug, newSlug);
+```
+
+#### 5. **WordPress Integration**
+```javascript
+// Copies completed block to WordPress directory
+copyBlock(blockPath, process.env.WP_BLOCKS_PATH);
+```
+
+---
+
+## Complete Example Response
+
+Here's what a typical AI response looks like for a "Hello Jay Alert" block:
+
+```json
+{
+    "blockName": "cm-hello-jay",
+    "description": "A simple block that displays 'Hello Jay' in an alert box when the page loads",
+    "files": {
+        "config.php": {
+            "action": "modify",
+            "content": "<?php\n/**\n * Hello Jay Block - Centralized Configuration\n */\n\nif (!defined('ABSPATH')) {\n    exit;\n}\n\nclass Hello_Jay_Config {\n    \n    public static function get_defaults() {\n        return [\n            'isExample' => false,\n            'message' => 'Hello Jay',\n            'showAlert' => true\n        ];\n    }\n    \n    public static function get_asset_handles() {\n        return [\n            'centralized_css' => 'hello-jay-centralized-css',\n            'centralized_js'  => 'hello-jay-centralized-js',\n            'editor_js'       => 'hello-jay-editor-js'\n        ];\n    }\n    \n    // ... rest of config class\n}"
+        },
+        "block.json": {
+            "action": "modify", 
+            "content": "{\n    \"$schema\": \"https://schemas.wp.org/trunk/block.json\",\n    \"apiVersion\": 3,\n    \"name\": \"cm/hello-jay\",\n    \"title\": \"Hello Jay\",\n    \"category\": \"cm-blocks\",\n    \"icon\": \"format-chat\",\n    \"description\": \"A simple block that displays 'Hello Jay' in an alert box\",\n    \"keywords\": [\"hello\", \"jay\", \"alert\", \"cm\"],\n    \"example\": {\n        \"attributes\": {\n            \"isExample\": true\n        }\n    },\n    \"supports\": {\n        \"html\": false,\n        \"align\": true\n    },\n    \"attributes\": {\n        \"isExample\": {\n            \"type\": \"boolean\",\n            \"default\": false\n        },\n        \"message\": {\n            \"type\": \"string\"\n        },\n        \"showAlert\": {\n            \"type\": \"boolean\",\n            \"default\": true\n        }\n    },\n    \"textdomain\": \"hello_jay\",\n    \"render\": \"file:./render.php\"\n}"
+        },
+        "centralized.js": {
+            "action": "modify",
+            "content": "/**\n * Hello Jay Block - Universal JavaScript\n */\n\n(function() {\n    'use strict';\n    \n    const CONFIG = window.HelloJayConfig || {};\n    \n    function initializeBlock() {\n        const blocks = document.querySelectorAll('.hello-jay');\n        \n        blocks.forEach(block => {\n            // Show alert when block loads\n            const message = block.querySelector('.hello-jay-content').textContent;\n            if (CONFIG.defaults && CONFIG.defaults.showAlert) {\n                alert(message);\n            }\n        });\n    }\n    \n    // Initialize based on environment\n    if (document.readyState === 'loading') {\n        document.addEventListener('DOMContentLoaded', initializeBlock);\n    } else {\n        initializeBlock();\n    }\n})();"
+        },
+        "editor.js": {
+            "action": "modify",
+            "content": "(function() {\n    'use strict';\n    \n    const { __ } = wp.i18n;\n    const { registerBlockType } = wp.blocks;\n    const { InspectorControls, useBlockProps, RichText } = wp.blockEditor;\n    const { PanelBody, ToggleControl } = wp.components;\n    const { Fragment, createElement } = wp.element;\n\n    let CONFIG = window.HelloJayConfig;\n\n    if (!CONFIG || !CONFIG.defaults) {\n        console.error('Hello Jay Block: PHP configuration not loaded.');\n        CONFIG = { defaults: { message: 'Hello Jay', showAlert: true } };\n    }\n\n    function BlockEdit({ attributes, setAttributes }) {\n        const blockProps = useBlockProps();\n        const processedAttributes = { ...CONFIG.defaults, ...attributes };\n        \n        if (processedAttributes.isExample) {\n            return createElement('img', {\n                src: '/wp-content/themes/word4ya/cm-blocks/hello-jay/preview.png',\n                alt: 'Hello Jay Block preview',\n                style: { width: '100%', maxWidth: '400px' }\n            });\n        }\n        \n        return createElement(Fragment, null, [\n            createElement(InspectorControls, { key: 'inspector' }, [\n                createElement(PanelBody, { title: 'Alert Settings', key: 'alert-panel' }, [\n                    createElement(ToggleControl, {\n                        key: 'show-alert',\n                        label: 'Show Alert on Load',\n                        checked: processedAttributes.showAlert,\n                        onChange: (value) => setAttributes({ showAlert: value })\n                    })\n                ])\n            ]),\n            createElement('div', {\n                key: 'content',\n                ...blockProps,\n                className: `${blockProps.className} hello-jay`\n            }, [\n                createElement(RichText, {\n                    key: 'hello-jay-content',\n                    tagName: 'p',\n                    className: 'hello-jay-content',\n                    value: processedAttributes.message,\n                    onChange: (value) => setAttributes({ message: value }),\n                    placeholder: __('Type your message here...', 'hello_jay')\n                })\n            ])\n        ]);\n    }\n\n    registerBlockType('cm/hello-jay', {\n        edit: BlockEdit,\n        save: () => null\n    });\n})();"
+        }
+    }
+}
+```
+
+## Key Benefits of This Structure
+
+### 1. **Automation Ready**
+- Zero manual intervention required
+- Direct file system operations
+- Preserves code formatting and structure
+
+### 2. **Operation Clarity** 
+- Clear distinction between file modifications and creations
+- Prevents accidental overwrites or missed files
+- Maintains template integrity
+
+### 3. **Content Integrity**
+- Complete, production-ready file content
+- No parsing ambiguity or content corruption
+- Proper escaping and formatting preserved
+
+### 4. **Scalability**
+- Handles any number of files
+- Supports complex block structures
+- Extensible for future file types
+
+This structured approach transforms AI-generated content into deployable WordPress blocks without human intervention, maintaining code quality and SSOT principles throughout the process.

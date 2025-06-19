@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "cm/a-test",
+  "version": "0.1.0",
+  "title": "A Test",
+  "category": "common",
+  "icon": "smiley",
+  "description": "A simple block that displays Hello Test in large text.",
+  "supports": {
+    "html": false
+  },
+  "textdomain": "cm",
+  "editorScript": "file:./assets/js/editor.js",
+  "editorStyle": "file:./assets/css/editor.css",
+  "style": "file:./assets/css/style.css"
+}

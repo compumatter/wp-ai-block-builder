@@ -1,0 +1,40 @@
+/**
+ * Hello World Block - Centralized Styles
+ * Works in frontend, FSE editor, and block editor environments
+ */
+
+.hello-world {
+    display: block;
+    width: 100%;
+    clear: both;
+    position: relative;
+}
+
+.hello-world__content {
+    display: block;
+    width: 100%;
+    clear: both;
+}
+ 
+/* Editor specific styles */
+.editor-styles-wrapper .hello-world {
+
+}
+
+.editor-styles-wrapper .hello-world__content {
+
+}
+
+/* Alignment classes */
+.hello-world.alignleft {
+    float: left;
+}
+
+.hello-world.alignright {
+    float: right;
+}
+
+.hello-world.aligncenter {
+    text-align: center;
+}
+ 
