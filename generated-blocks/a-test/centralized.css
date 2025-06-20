@@ -1,40 +1,9 @@
-/**
- * Hello World Block - Centralized Styles
- * Works in frontend, FSE editor, and block editor environments
- */
-
-.hello-world {
-    display: block;
-    width: 100%;
-    clear: both;
-    position: relative;
+.wp-block-cm-a-test {
+    padding: 1em;
 }
 
-.hello-world__content {
-    display: block;
-    width: 100%;
-    clear: both;
+.wp-block-cm-a-test__message {
+    font-size: var(--a-test-font-size);
+    margin: 0;
+    font-weight: bold;
 }
- 
-/* Editor specific styles */
-.editor-styles-wrapper .hello-world {
-
-}
-
-.editor-styles-wrapper .hello-world__content {
-
-}
-
-/* Alignment classes */
-.hello-world.alignleft {
-    float: left;
-}
-
-.hello-world.alignright {
-    float: right;
-}
-
-.hello-world.aligncenter {
-    text-align: center;
-}
- 

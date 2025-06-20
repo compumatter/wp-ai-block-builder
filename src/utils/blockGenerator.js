@@ -4,6 +4,8 @@
  * This orchestrator manages the complete block creation workflow from start to finish.
  * It coordinates other services but does NOT do the detailed work itself.
  * 
+ * ENHANCED: Now includes template integrity validation and SSOT compliance checks
+ * 
  * SPECIFIC RESPONSIBILITIES:
  * 1. Receive block specifications from the server
  * 2. Call AnthropicService to get AI-generated code
@@ -27,6 +29,7 @@
 
 const AnthropicService = require('../services/anthropic');
 const WpBlockBuilder = require('./wpBlockBuilder');
+const TemplateValidator = require('./templateValidator');
 
 // ============================================================================
 // BLOCK GENERATOR ORCHESTRATOR
@@ -37,13 +40,14 @@ class BlockGenerator {
         // Initialize service dependencies
         this.anthropicService = new AnthropicService();
         this.wpBlockBuilder = new WpBlockBuilder();
+        this.templateValidator = new TemplateValidator(this.wpBlockBuilder.templatePath);
         
-        console.log('🎯 BlockGenerator initialized');
+        console.log('🎯 BlockGenerator initialized with SSOT validation');
     }
 
     /**
      * Main orchestration method: Generate complete WordPress block
-     * This is the single entry point that handles the entire workflow
+     * ENHANCED: Now includes template validation before generation
      * 
      * @param {string} spec - User's specification for the block
      * @param {string} slug - Block slug (e.g., 'cm-hello-jay')
@@ -56,6 +60,10 @@ class BlockGenerator {
             console.log('🚀 Starting block generation workflow...');
             console.log(`📋 Spec: ${spec}`);
             console.log(`🏷️  Slug: ${slug}`);
+            
+            // Step 0: Validate template integrity before proceeding
+            console.log('\n🔍 STEP 0: Template Integrity Validation');
+            await this.validateTemplateIntegrity();
             
             // Step 1: Validate inputs
             this.validateInputs(spec, slug);
@@ -70,6 +78,7 @@ class BlockGenerator {
             }
             
             console.log(`✅ AI generated ${Object.keys(aiResponse.files).length} files`);
+            console.log(`✅ SSOT validation passed during AI generation`);
             
             // Step 3: Process files and deploy to WordPress
             console.log('\n🔨 STEP 2: File Processing & Deployment');
@@ -90,6 +99,7 @@ class BlockGenerator {
             console.log('\n🎉 Block generation completed successfully!');
             console.log(`⏱️  Total time: ${executionTime}ms`);
             console.log(`📁 WordPress path: ${buildResults.paths.wordpress}`);
+            console.log(`✅ SSOT compliance maintained throughout process`);
             
             return results;
             
@@ -103,6 +113,32 @@ class BlockGenerator {
             
             // Re-throw with enhanced error context
             throw new Error(`Block generation failed: ${error.message}`);
+        }
+    }
+
+    /**
+     * NEW: Validate template integrity before generation
+     */
+    async validateTemplateIntegrity() {
+        console.log('🔍 Validating hello-world template integrity...');
+        
+        const validation = await this.templateValidator.validateTemplate();
+        
+        if (!validation.valid) {
+            throw new Error(
+                `Template integrity validation failed: ${validation.error}. ` +
+                `Please fix the hello-world template before generating new blocks.`
+            );
+        }
+        
+        console.log('✅ Template integrity validation passed');
+        
+        // Log any warnings from template validation
+        if (validation.ssotValidation && validation.ssotValidation.warnings.length > 0) {
+            console.warn('⚠️  Template validation warnings:');
+            validation.ssotValidation.warnings.forEach(warning => {
+                console.warn(`  - ${warning}`);
+            });
         }
     }
 
@@ -137,10 +173,8 @@ class BlockGenerator {
     }
 
     /**
-     * Build comprehensive success response
-     */
-/**
      * Build comprehensive success response with strict validation
+     * ENHANCED: Now includes SSOT validation results
      */
     buildSuccessResponse(spec, slug, aiResponse, buildResults, executionTime) {
         // Strict validation - no fallbacks, fail if data is missing
@@ -180,7 +214,8 @@ class BlockGenerator {
                 model: aiResponse.metadata.model,
                 description: aiResponse.description,
                 filesGenerated: Object.keys(aiResponse.files).length,
-                generatedAt: aiResponse.metadata.generatedAt
+                generatedAt: aiResponse.metadata.generatedAt,
+                ssotCompliant: true // Guaranteed by validation
             },
             
             // File processing results
@@ -197,9 +232,17 @@ class BlockGenerator {
                 ready: true
             },
             
+            // SSOT compliance info
+            ssot: {
+                templateValidated: true,
+                codeValidated: true,
+                complianceLevel: 'FULL'
+            },
+            
             // Next steps for user
             nextSteps: [
                 'Block has been deployed to WordPress',
+                'SSOT compliance has been verified',
                 'Refresh WordPress admin to see the new block',
                 'Test the block in the block editor',
                 'Check browser console for any JavaScript errors'
@@ -234,17 +277,19 @@ class BlockGenerator {
                 'Check if Anthropic API key is valid',
                 'Verify WordPress blocks path is accessible',
                 'Check console logs for detailed error info',
-                'Ensure hello-world template is properly linked'
+                'Ensure hello-world template is SSOT compliant',
+                'Verify template integrity validation passes'
             ]
         };
     }
 
     /**
      * Health check method for testing system status
+     * ENHANCED: Now includes template validation in health check
      */
     async healthCheck() {
         try {
-            console.log('🏥 Running health check...');
+            console.log('🏥 Running comprehensive health check...');
             
             // Check Anthropic service
             const anthropicReady = this.anthropicService.apiKey ? true : false;
@@ -252,22 +297,43 @@ class BlockGenerator {
             // Check wpBlockBuilder paths
             const builderReady = this.wpBlockBuilder.wpBlocksPath ? true : false;
             
-            // Check template availability  
+            // Check template availability and integrity
             const fs = require('fs-extra');
             const templateExists = await fs.pathExists(this.wpBlockBuilder.templatePath);
             
+            let templateValid = false;
+            let templateValidation = null;
+            
+            if (templateExists) {
+                try {
+                    templateValidation = await this.templateValidator.validateTemplate();
+                    templateValid = templateValidation.valid;
+                } catch (error) {
+                    console.warn('⚠️  Template validation failed during health check:', error.message);
+                }
+            }
+            
             const status = {
-                overall: anthropicReady && builderReady && templateExists,
+                overall: anthropicReady && builderReady && templateExists && templateValid,
                 services: {
                     anthropic: anthropicReady,
                     wpBlockBuilder: builderReady,
-                    template: templateExists
+                    template: templateExists,
+                    templateIntegrity: templateValid
                 },
                 paths: {
                     template: this.wpBlockBuilder.templatePath,
                     wordpress: this.wpBlockBuilder.wpBlocksPath
+                },
+                ssot: {
+                    validatorAvailable: true,
+                    templateCompliant: templateValid
                 }
             };
+            
+            if (templateValidation && !templateValidation.valid) {
+                status.templateValidationError = templateValidation.error;
+            }
             
             console.log('✅ Health check completed');
             return status;

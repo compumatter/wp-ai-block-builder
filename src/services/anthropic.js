@@ -13,6 +13,7 @@
 const axios = require('axios');           // HTTP client for API calls
 const fs = require('fs-extra');           // Enhanced file system operations
 const path = require('path');             // File path utilities
+const SSOTValidator = require('./ssotValidator'); // SSOT compliance validator
 
 // ============================================================================
 // ANTHROPIC API CONFIGURATION
@@ -24,6 +25,7 @@ class AnthropicService {
         this.apiKey = process.env.ANTHROPIC_API_KEY;
         this.apiUrl = 'https://api.anthropic.com/v1/messages';
         this.rulesPath = process.env.RULES_PATH || './prompts';
+        this.ssotValidator = new SSOTValidator();
         
         // Validate API key exists
         if (!this.apiKey) {
@@ -105,9 +107,18 @@ ${rules.codingRules}
 
 ${rules.responseRules}
 
+CRITICAL INSTRUCTION: Before generating any code, you MUST:
+1. Identify all default values in your response
+2. Ensure each default appears in exactly ONE location (config.php get_defaults())
+3. Verify no hardcoded fallbacks exist in JavaScript files
+4. Confirm block.json contains NO default properties in attributes
+5. Double-check that all asset handles come from config.php get_asset_handles()
+
 USER REQUEST:
 - Block Specification: ${spec}
-- Block Slug: ${slug}`;
+- Block Slug: ${slug}
+
+REMINDER: Your response will be automatically validated for SSOT compliance. Any violations will cause the generation to fail.`;
     }
 
     /**
@@ -140,6 +151,7 @@ USER REQUEST:
     /**
      * Parse Claude's response and extract the generated code
      * Uses robust brace counting to extract complete JSON objects
+     * ENHANCED: Now includes SSOT compliance validation
      */
     parseResponse(response, slug) {
         try {
@@ -200,6 +212,23 @@ USER REQUEST:
             if (!parsed.blockName || !parsed.description || !parsed.files) {
                 throw new Error('JSON missing required fields: blockName, description, or files');
             }
+
+            // NEW: SSOT compliance validation
+            console.log('🔍 Running SSOT compliance validation...');
+            const ssotValidation = this.ssotValidator.validateCompliance(parsed.files);
+            
+            if (!ssotValidation.valid) {
+                console.error('❌ SSOT validation failed:');
+                ssotValidation.violations.forEach(violation => {
+                    console.error(`  - ${violation}`);
+                });
+                
+                throw new Error(
+                    `SSOT compliance violation detected. Violations: ${ssotValidation.violations.join('; ')}`
+                );
+            }
+
+            console.log('✅ SSOT validation passed - code follows Single Source of Truth principles');
             
             return {
                 success: true,
@@ -209,7 +238,8 @@ USER REQUEST:
                 metadata: {
                     generatedAt: new Date().toISOString(),
                     model: 'claude-3-5-sonnet',
-                    explanation: content.substring(0, firstBrace).trim() // Capture explanation before JSON
+                    explanation: content.substring(0, firstBrace).trim(), // Capture explanation before JSON
+                    ssotValidation: ssotValidation // Include validation results
                 }
             };
         } catch (error) {
@@ -218,7 +248,8 @@ USER REQUEST:
             // Return raw content for debugging
             return {
                 success: false,
-                error: 'Failed to parse Claude response',
+                error: 'Failed to parse Claude response or SSOT validation failed',
+                details: error.message,
                 rawResponse: response.content[0].text
             };
         }

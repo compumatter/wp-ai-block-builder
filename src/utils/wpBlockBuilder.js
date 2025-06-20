@@ -50,7 +50,7 @@ class WpBlockBuilder {
             // Step 2: Apply AI-generated file modifications
             await this.applyFileModifications(aiResponse.files, blockPath);
             
-            // Step 3: Update all nomenclature throughout files
+            // Step 3: Update all nomenclature throughout files (STRICT ERROR HANDLING)
             await this.updateNomenclature(blockPath, 'hello-world', blockName);
             
             // Step 4: Copy to WordPress directory
@@ -211,11 +211,11 @@ class WpBlockBuilder {
             console.log(`🗑️  Removed existing WordPress block: ${blockName}`);
         }
         
-        // Copy completed block to WordPress
-	await fs.copy(blockPath, wpPath, {
-	    dereference: true,    // Follow symlinks and copy actual files
-	    overwrite: true       // Overwrite existing files/symlinks
-	});	    
+                // Copy completed block to WordPress
+        await fs.copy(blockPath, wpPath, {
+            dereference: true,    // Follow symlinks and copy actual files
+            overwrite: true       // Overwrite existing files/symlinks
+        });
         console.log(`✅ Block deployed to WordPress successfully`);
         
         return wpPath;
