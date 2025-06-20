@@ -80,9 +80,9 @@ class A_Test_Config {
 
     public static function get_validation_rules() {
         return [
-            'message' => ['type' => 'string'],
-            'fontSize' => ['type' => 'string', 'pattern' => '/^\d+px$/'],
-            'className' => ['type' => 'string']
+            'message' => 'string',
+            'fontSize' => 'string',
+            'className' => 'string'
         ];
     }
 
@@ -91,7 +91,7 @@ class A_Test_Config {
             case 'message':
                 return sanitize_text_field($value);
             case 'fontSize':
-                return preg_match('/^\d+px$/', $value) ? $value : self::get_defaults()['fontSize'];
+                return sanitize_text_field($value);
             case 'className':
                 return sanitize_html_class($value);
             default:

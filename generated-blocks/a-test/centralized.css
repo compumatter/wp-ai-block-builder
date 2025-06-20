@@ -1,9 +1,10 @@
 .wp-block-cm-a-test {
-    padding: 1em;
+    display: block;
+    margin: 1em 0;
 }
 
 .wp-block-cm-a-test__message {
     font-size: var(--a-test-font-size);
     margin: 0;
-    font-weight: bold;
+    padding: 0;
 }

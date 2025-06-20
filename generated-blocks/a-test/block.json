@@ -3,9 +3,9 @@
   "apiVersion": 2,
   "name": "cm/a-test",
   "title": "A Test",
-  "category": "cm-blocks",
-  "icon": "admin-comments",
-  "description": "Displays Hello Test in large text",
+  "category": "custom-blocks",
+  "icon": "admin-customizer",
+  "description": "A simple block that displays Hello Test in large text",
   "keywords": [
     "test",
     "hello"

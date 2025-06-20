@@ -3,27 +3,27 @@
 
     const { registerBlockType } = wp.blocks;
     const { useBlockProps } = wp.blockEditor;
-    const { CONFIG } = window.cmATest;
+    const { CONFIG } = window.cm.aTest;
 
     if (!CONFIG) {
-        console.error('A Test block: Configuration missing');
+        console.error('A Test block configuration not found');
         return;
     }
 
     registerBlockType('cm/a-test', {
         edit: function(props) {
             const { attributes, setAttributes } = props;
-            const blockProps = useBlockProps();
-            
-            const message = attributes.message || CONFIG.defaults.message;
-            
+            const blockProps = useBlockProps({
+                className: CONFIG.selectors.root.slice(1)
+            });
+
             return wp.element.createElement(
                 'div',
                 blockProps,
                 wp.element.createElement(
-                    'p',
-                    { className: 'wp-block-cm-a-test__message' },
-                    message
+                    'h2',
+                    { className: CONFIG.selectors.message.slice(1) },
+                    attributes.message || CONFIG.defaults.message
                 )
             );
         },
